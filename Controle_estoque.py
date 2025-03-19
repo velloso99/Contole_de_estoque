@@ -404,7 +404,7 @@ def atulizar():
 
     # Configurações
     versao_atual = "1.0.0"  # Versão atual do software
-    url_do_arquivo_zip = "https://www.dropbox.com/scl/fi/wdqid5j0vt3sndndnyfbg/Contole_de_estoque.rar?rlkey=f45h4hc9l4ela3mhs7qmhm90v&dl=0"
+    url_do_arquivo_zip = "https://www.dropbox.com/scl/fi/mk4g1t5djrrtdxltfksml/Controle_de_estoque.exe?rlkey=jx7ffplf035vbuio6mhq5jfu8&dl=0"
     destino_arquivo_zip = os.path.join(os.getcwd(), "Controle_de_estoque.rar")  # Mantendo a extensão original
 
     # Fluxo principal
