@@ -368,40 +368,39 @@ def painel_geral():
 #***************************************************************************************************
 def atulizar():
     
-    # Função para verificar a versão e salvar o arquivo na pasta Downloads
+    # Constantes
+    URL_API = "https://www.dropbox.com/scl/fo/izzghvrhgv5f8dfh5e1i7/ADyH_K3o81MD_nTX0nNlnIY?rlkey=ni9imax4q4brcs50f1ux7iw4p&st=nuagq4ao&dl=0"
+    PASTA_DOWNLOAD = os.path.join(os.path.expanduser("~"), "Downloads")
+
     def verificar_versao_e_baixar():
         try:
-            # URL da API para obter a versão mais recente
-            url_versao = "https://api.github.com/repos/<usuario>/<repositorio>/releases/latest"
-            headers = {"Accept": "application/vnd.github.v3+json"}
-
-            # Fazer a solicitação para a API do GitHub
-            resposta = requests.get(url_versao, headers=headers)
+            # Fazer a solicitação para a API
+            resposta = requests.get(URL_API)
             resposta.raise_for_status()
+        
+            # Parsear o JSON retornado pela API
             dados = resposta.json()
-
-            # Obter o número da versão mais recente e o link de download
+        
+            # Validação de dados
             if "tag_name" in dados and "assets" in dados and len(dados["assets"]) > 0:
+                # Obter o número da versão mais recente e o link de download
                 versao_mais_recente = dados["tag_name"]
                 nome_arquivo = dados["assets"][0]["name"]
                 url_download = dados["assets"][0]["browser_download_url"]
-
-                # Diretório de Downloads
-                pasta_download = os.path.join(os.path.expanduser("~"), "Downloads")
-                caminho_arquivo = os.path.join(pasta_download, nome_arquivo)
-
+            
                 # Baixar o arquivo
                 response_arquivo = requests.get(url_download, stream=True)
                 response_arquivo.raise_for_status()
-
-                # Salvar o arquivo na pasta Downloads
+            
+            #    Salvar o arquivo na pasta "Downloads"
+                caminho_arquivo = os.path.join(PASTA_DOWNLOAD, nome_arquivo)
                 with open(caminho_arquivo, "wb") as f:
                     for chunk in response_arquivo.iter_content(chunk_size=8192):
                         f.write(chunk)
-
+            
                 # Atualizar o Label e exibir uma mensagem de sucesso
                 label_status.config(text=f"Arquivo salvo em: {caminho_arquivo}")
-                messagebox.showinfo("Sucesso", f"Nova versão {versao_mais_recente} baixada em {pasta_download}")
+                messagebox.showinfo("Sucesso", f"Nova versão {versao_mais_recente} baixada em {PASTA_DOWNLOAD}")
             else:
                 label_status.config(text="Não foi possível encontrar o arquivo para download.")
         except Exception as e:
@@ -409,15 +408,30 @@ def atulizar():
             messagebox.showerror("Erro", f"Ocorreu um erro: {e}")
 
     # Janela principal do Tkinter
+   
     root = tk.Tk()
-    root.title("Verificar e Baixar Atualizações")
-
+    root.title("Verificar e baixar atualizações")
+    root.geometry("100x100")
+    root.configure(background=co0)
+    root.resizable(width=False, height=False)
+    root.overrideredirect(1)
+    largura_root = 500
+    altura_root = 300
+    #obter tamanho da tela
+    largura_tela = root.winfo_screenwidth()
+    altura_tela = root.winfo_screenheight()
+    # Calcular posição para centralizar
+    pos_x = ( largura_tela-largura_root )//2
+    pos_y = (altura_tela - altura_root)//2
+    # Definir geometria da janela (LxA+X+Y)
+    root.geometry(f"{largura_root}x{altura_root}+{pos_x}+{pos_y}")
+    
     # Label para exibir o status
-    label_status = tk.Label(root, text="Clique no botão para verificar a versão e baixar.", font=("Arial", 12))
+    label_status = Label(root, text="Clique no botão para verificar a versão e baixar.", font=("Arial", 12))
     label_status.pack(pady=10)
 
     # Botão para verificar e baixar a versão
-    botao_verificar = tk.Button(root, text="Verificar e Baixar", command=verificar_versao_e_baixar)
+    botao_verificar = Button(root, text="Verificar e Baixar", command=verificar_versao_e_baixar)
     botao_verificar.pack(pady=10)
 
 #***************************************************************************************************      
