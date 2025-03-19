@@ -372,7 +372,7 @@ def atulizar():
         print("Verificando por atualizações...")
 
         # Simulação de consulta ao servidor (versão correta)
-        versao_disponivel = "1.5"  
+        versao_disponivel = "1.0"  
 
         # Converte versões para tuplas numéricas e compara
         if tuple(map(int, versao_atual.split("."))) < tuple(map(int, versao_disponivel.split("."))):
@@ -404,7 +404,7 @@ def atulizar():
 
     # Configurações
     versao_atual = "1.0.0"  # Versão atual do software
-    url_do_arquivo_zip = "https://www.dropbox.com/scl/fi/coz09xukhhy6n1l2rcqsh/Contole_de_estoque.rar?rlkey=8zlu4kf0z672vzoxtu4l9lhmp&st=50bzy4py&dl=0"
+    url_do_arquivo_zip = "https://www.dropbox.com/scl/fi/wdqid5j0vt3sndndnyfbg/Contole_de_estoque.rar?rlkey=f45h4hc9l4ela3mhs7qmhm90v&dl=0"
     destino_arquivo_zip = os.path.join(os.getcwd(), "Controle_de_estoque.rar")  # Mantendo a extensão original
 
     # Fluxo principal
@@ -413,9 +413,7 @@ def atulizar():
         baixar_zip(url_do_arquivo_zip, destino_arquivo_zip)
     else:
         print("Nenhuma ação necessária.")
-#***************************************************************************************************  
-
-         
+#***************************************************************************************************      
 def relatorio():
     
     #Criar uma nova janela
