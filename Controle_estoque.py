@@ -368,72 +368,51 @@ def painel_geral():
 #***************************************************************************************************
 def atulizar():
     
-    # Configuração
-    VERSAO_ATUAL = "1.0"  # Versão atual do software
-    UPDATE_URL = "https://www.dropbox.com/scl/fi/vlktpn0q0cris2e57gn3e/update.json?rlkey=e9333hx720igm6c4e96egv82z&st=0kfy9s8j&dl=1"  # Link para o JSON
-    INSTALADOR_NOME = "Controle_de_estoque.exe"
+    def verificar_atualizacao(versao_atual):
+        print("Verificando por atualizações...")
 
-    def verificar_atualizacao():
+        # Simulação de consulta ao servidor (versão correta)
+        versao_disponivel = "1.5"  
+
+        # Converte versões para tuplas numéricas e compara
+        if tuple(map(int, versao_atual.split("."))) < tuple(map(int, versao_disponivel.split("."))):
+            print(f"Nova versão disponível: {versao_disponivel}")
+            return versao_disponivel
+        else:
+            print("Você já possui a versão mais recente.")
+            return None
+
+    def baixar_zip(url, destino):
+        print(f"Baixando o arquivo ZIP de {url}...")
+
+        # Corrige link do Dropbox para permitir download direto
+        if "dropbox.com" in url:
+            url = url.replace("?dl=0", "?dl=1")
+
         try:
-            messagebox.showinfo("Verificando", "Verificando atualizações...")
-
-            # Baixa o arquivo JSON com as informações da atualização
-            response = requests.get(UPDATE_URL)
-            response.raise_for_status()  # Lança erro se houver falha
-
-            # Converte JSON para dicionário
-            update_data = json.loads(response.text)
-
-            nova_versao = update_data.get("versao")
-            download_url = update_data.get("url")
-
-            if not nova_versao or not download_url:
-                messagebox.showerror("Erro", "Erro ao verificar atualização.")
-                return
-
-            # Compara a versão
-            if nova_versao > VERSAO_ATUAL:
-                resposta = messagebox.askyesno("Atualização Disponível", 
-                                            f"Uma nova versão {nova_versao} está disponível. Deseja baixar?")
-                if resposta:
-                    baixar_instalador(download_url)
-            else:
-                messagebox.showinfo("Atualização", "Seu software já está atualizado.")
-
-        except requests.exceptions.RequestException as e:
-            messagebox.showerror("Erro", f"Erro ao verificar atualização:\n{e}")
-
-    def baixar_instalador(url):
-        try:
-            messagebox.showinfo("Download", "Baixando atualização...")
-        
             response = requests.get(url, stream=True)
             response.raise_for_status()
 
-            with open(INSTALADOR_NOME, "wb") as f:
+            with open(destino, "wb") as arquivo:
                 for chunk in response.iter_content(1024):
-                    f.write(chunk)
+                    arquivo.write(chunk)
 
-            messagebox.showinfo("Sucesso", "Download concluído! Instalando atualização...")
-            os.system(INSTALADOR_NOME)  # Executa o instalador
-            exit()
+            print(f"Arquivo baixado com sucesso em: {destino}")
 
         except requests.exceptions.RequestException as e:
-            messagebox.showerror("Erro", f"Erro ao baixar atualização:\n{e}")
+            print(f"Falha no download: {e}")
 
-    # Criando a interface Tkinter
-    root = tk.Tk()
-    root.title("Verificador de Atualização")
-    root.geometry("300x200")
+    # Configurações
+    versao_atual = "1.0.0"  # Versão atual do software
+    url_do_arquivo_zip = "https://www.dropbox.com/scl/fi/coz09xukhhy6n1l2rcqsh/Contole_de_estoque.rar?rlkey=8zlu4kf0z672vzoxtu4l9lhmp&st=50bzy4py&dl=0"
+    destino_arquivo_zip = os.path.join(os.getcwd(), "Controle_de_estoque.rar")  # Mantendo a extensão original
 
-    frame = tk.Frame(root)
-    frame.pack(pady=20)
-
-    label = tk.Label(frame, text="Verificar Atualização", font=("Arial", 12))
-    label.pack(pady=10)
-
-    btn_verificar = tk.Button(frame, text="Verificar", command=verificar_atualizacao)
-    btn_verificar.pack(pady=10)
+    # Fluxo principal
+    nova_versao = verificar_atualizacao(versao_atual)
+    if nova_versao:
+        baixar_zip(url_do_arquivo_zip, destino_arquivo_zip)
+    else:
+        print("Nenhuma ação necessária.")
 #***************************************************************************************************  
 
          
