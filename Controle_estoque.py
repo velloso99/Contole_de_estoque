@@ -368,51 +368,58 @@ def painel_geral():
 #***************************************************************************************************
 def atulizar():
     
-    def verificar_atualizacao(versao_atual):
-        print("Verificando por atualizações...")
-
-        # Simulação de consulta ao servidor (versão correta)
-        versao_disponivel = "1.0"  
-
-        # Converte versões para tuplas numéricas e compara
-        if tuple(map(int, versao_atual.split("."))) < tuple(map(int, versao_disponivel.split("."))):
-            print(f"Nova versão disponível: {versao_disponivel}")
-            return versao_disponivel
-        else:
-            print("Você já possui a versão mais recente.")
-            return None
-
-    def baixar_zip(url, destino):
-        print(f"Baixando o arquivo ZIP de {url}...")
-
-        # Corrige link do Dropbox para permitir download direto
-        if "dropbox.com" in url:
-            url = url.replace("?dl=0", "?dl=1")
-
+    # Função para verificar a versão e salvar o arquivo na pasta Downloads
+    def verificar_versao_e_baixar():
         try:
-            response = requests.get(url, stream=True)
-            response.raise_for_status()
+            # URL da API para obter a versão mais recente
+            url_versao = "https://api.github.com/repos/<usuario>/<repositorio>/releases/latest"
+            headers = {"Accept": "application/vnd.github.v3+json"}
 
-            with open(destino, "wb") as arquivo:
-                for chunk in response.iter_content(1024):
-                    arquivo.write(chunk)
+            # Fazer a solicitação para a API do GitHub
+            resposta = requests.get(url_versao, headers=headers)
+            resposta.raise_for_status()
+            dados = resposta.json()
 
-            print(f"Arquivo baixado com sucesso em: {destino}")
+            # Obter o número da versão mais recente e o link de download
+            if "tag_name" in dados and "assets" in dados and len(dados["assets"]) > 0:
+                versao_mais_recente = dados["tag_name"]
+                nome_arquivo = dados["assets"][0]["name"]
+                url_download = dados["assets"][0]["browser_download_url"]
 
-        except requests.exceptions.RequestException as e:
-            print(f"Falha no download: {e}")
+                # Diretório de Downloads
+                pasta_download = os.path.join(os.path.expanduser("~"), "Downloads")
+                caminho_arquivo = os.path.join(pasta_download, nome_arquivo)
 
-    # Configurações
-    versao_atual = "1.0.0"  # Versão atual do software
-    url_do_arquivo_zip = "https://www.dropbox.com/scl/fi/mk4g1t5djrrtdxltfksml/Controle_de_estoque.exe?rlkey=jx7ffplf035vbuio6mhq5jfu8&dl=0"
-    destino_arquivo_zip = os.path.join(os.getcwd(), "Controle_de_estoque.rar")  # Mantendo a extensão original
+                # Baixar o arquivo
+                response_arquivo = requests.get(url_download, stream=True)
+                response_arquivo.raise_for_status()
 
-    # Fluxo principal
-    nova_versao = verificar_atualizacao(versao_atual)
-    if nova_versao:
-        baixar_zip(url_do_arquivo_zip, destino_arquivo_zip)
-    else:
-        print("Nenhuma ação necessária.")
+                # Salvar o arquivo na pasta Downloads
+                with open(caminho_arquivo, "wb") as f:
+                    for chunk in response_arquivo.iter_content(chunk_size=8192):
+                        f.write(chunk)
+
+                # Atualizar o Label e exibir uma mensagem de sucesso
+                label_status.config(text=f"Arquivo salvo em: {caminho_arquivo}")
+                messagebox.showinfo("Sucesso", f"Nova versão {versao_mais_recente} baixada em {pasta_download}")
+            else:
+                label_status.config(text="Não foi possível encontrar o arquivo para download.")
+        except Exception as e:
+            label_status.config(text="Erro ao verificar e baixar arquivo.")
+            messagebox.showerror("Erro", f"Ocorreu um erro: {e}")
+
+    # Janela principal do Tkinter
+    root = tk.Tk()
+    root.title("Verificar e Baixar Atualizações")
+
+    # Label para exibir o status
+    label_status = tk.Label(root, text="Clique no botão para verificar a versão e baixar.", font=("Arial", 12))
+    label_status.pack(pady=10)
+
+    # Botão para verificar e baixar a versão
+    botao_verificar = tk.Button(root, text="Verificar e Baixar", command=verificar_versao_e_baixar)
+    botao_verificar.pack(pady=10)
+
 #***************************************************************************************************      
 def relatorio():
     
